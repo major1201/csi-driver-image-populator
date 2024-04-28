@@ -1,12 +1,9 @@
-FROM centos:centos7
-LABEL maintainers="Kubernetes Authors"
-LABEL description="Image Driver"
+FROM major1201/debian:bookworm-runit
 
 RUN \
-  yum install -y epel-release && \
-  yum install -y buildah && \
-  yum clean all
+  apt update && \
+  apt install -y buildah && \
+  apt clean
 
 COPY ./bin/imagepopulatorplugin /imagepopulatorplugin
 ENTRYPOINT ["/imagepopulatorplugin"]
-

@@ -17,63 +17,50 @@ limitations under the License.
 package image
 
 import (
+	"time"
+
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"github.com/golang/glog"
+)
 
-	"github.com/kubernetes-csi/drivers/pkg/csi-common"
+var (
+	version = "1.0.0"
 )
 
 type driver struct {
-	csiDriver *csicommon.CSIDriver
-	endpoint  string
+	*csi.UnimplementedIdentityServer
+	*csi.UnimplementedGroupControllerServer
+	*csi.UnimplementedNodeServer
 
-	ids *csicommon.DefaultIdentityServer
-	ns  *nodeServer
-
-	cap   []*csi.VolumeCapability_AccessMode
-	cscap []*csi.ControllerServiceCapability
+	config Config
 }
 
-var (
-	version = "0.0.1"
-)
+type Config struct {
+	DriverName    string
+	Endpoint      string
+	NodeID        string
+	VendorVersion string
+	BuildahPath   string
+	ExecTimeout   time.Duration
+}
 
-func NewDriver(driverName, nodeID, endpoint string) *driver {
+func NewDriver(driverName, nodeID, endpoint, buildahPath string, pullTimeout time.Duration) *driver {
 	glog.Infof("Driver: %v version: %v", driverName, version)
 
 	d := &driver{}
-
-	d.endpoint = endpoint
-
-	csiDriver := csicommon.NewCSIDriver(driverName, version, nodeID)
-	csiDriver.AddVolumeCapabilityAccessModes([]csi.VolumeCapability_AccessMode_Mode{csi.VolumeCapability_AccessMode_SINGLE_NODE_WRITER})
-	// image plugin does not support ControllerServiceCapability now.
-	// If support is added, it should set to appropriate
-	// ControllerServiceCapability RPC types.
-	csiDriver.AddControllerServiceCapabilities([]csi.ControllerServiceCapability_RPC_Type{csi.ControllerServiceCapability_RPC_UNKNOWN})
-
-	d.csiDriver = csiDriver
-
+	d.config = Config{
+		DriverName:    driverName,
+		Endpoint:      endpoint,
+		NodeID:        nodeID,
+		VendorVersion: version,
+		BuildahPath:   buildahPath,
+		ExecTimeout:   pullTimeout,
+	}
 	return d
 }
 
-func NewNodeServer(d *driver) *nodeServer {
-	return &nodeServer{
-		DefaultNodeServer: csicommon.NewDefaultNodeServer(d.csiDriver),
-	}
-}
-
-func NewControllerServer(d *csicommon.CSIDriver) *controllerServer {
-	return &controllerServer{
-		DefaultControllerServer: csicommon.NewDefaultControllerServer(d),
-	}
-}
-
 func (d *driver) Run() {
-	s := csicommon.NewNonBlockingGRPCServer()
-	s.Start(d.endpoint,
-		csicommon.NewDefaultIdentityServer(d.csiDriver),
-		NewControllerServer(d.csiDriver),
-		NewNodeServer(d))
+	s := NewNonBlockingGRPCServer()
+	s.Start(d.config.Endpoint, d, d, d, d)
 	s.Wait()
 }

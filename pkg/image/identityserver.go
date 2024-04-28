@@ -17,9 +17,19 @@ limitations under the License.
 package image
 
 import (
-	"github.com/kubernetes-csi/drivers/pkg/csi-common"
+	"github.com/container-storage-interface/spec/lib/go/csi"
+	"golang.org/x/net/context"
 )
 
-type identityServer struct {
-	*csicommon.DefaultIdentityServer
+func (d *driver) GetPluginInfo(ctx context.Context, req *csi.GetPluginInfoRequest) (*csi.GetPluginInfoResponse, error) {
+	return &csi.GetPluginInfoResponse{
+		Name:          d.config.DriverName,
+		VendorVersion: d.config.VendorVersion,
+	}, nil
+}
+
+func (d *driver) GetPluginCapabilities(ctx context.Context, req *csi.GetPluginCapabilitiesRequest) (*csi.GetPluginCapabilitiesResponse, error) {
+	return &csi.GetPluginCapabilitiesResponse{
+		Capabilities: []*csi.PluginCapability{},
+	}, nil
 }

@@ -18,7 +18,7 @@ package main
 
 import (
 	"flag"
-	"os"
+	"time"
 
 	"github.com/major1201/csi-driver-image-populator/pkg/image"
 )
@@ -28,19 +28,20 @@ func init() {
 }
 
 var (
-	endpoint   = flag.String("endpoint", "unix://tmp/csi.sock", "CSI endpoint")
-	driverName = flag.String("drivername", "image.csi.k8s.io", "name of the driver")
-	nodeID     = flag.String("nodeid", "", "node id")
+	endpoint    = flag.String("endpoint", "unix://tmp/csi.sock", "CSI endpoint")
+	driverName  = flag.String("drivername", "image.csi.k8s.io", "name of the driver")
+	nodeID      = flag.String("nodeid", "", "node id")
+	buildahPath = flag.String("buildah_path", "/bin/buildah", "buildah path, default: /bin/buildah")
+	pullTimeout = flag.Duration("pull_timeout", 5*time.Minute, "image pull timeout, default: 5m")
 )
 
 func main() {
 	flag.Parse()
 
 	handle()
-	os.Exit(0)
 }
 
 func handle() {
-	driver := image.NewDriver(*driverName, *nodeID, *endpoint)
+	driver := image.NewDriver(*driverName, *nodeID, *endpoint, *buildahPath, *pullTimeout)
 	driver.Run()
 }

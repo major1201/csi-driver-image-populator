@@ -18,15 +18,90 @@ package image
 
 import (
 	"github.com/container-storage-interface/spec/lib/go/csi"
+	"github.com/golang/glog"
 	"golang.org/x/net/context"
-
-	"github.com/kubernetes-csi/drivers/pkg/csi-common"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
-type controllerServer struct {
-	*csicommon.DefaultControllerServer
+func (d *driver) CreateVolume(ctx context.Context, req *csi.CreateVolumeRequest) (*csi.CreateVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
 }
 
-func (cs *controllerServer) ValidateVolumeCapabilities(ctx context.Context, req *csi.ValidateVolumeCapabilitiesRequest) (*csi.ValidateVolumeCapabilitiesResponse, error) {
-	return cs.DefaultControllerServer.ValidateVolumeCapabilities(ctx, req)
+func (d *driver) DeleteVolume(ctx context.Context, req *csi.DeleteVolumeRequest) (*csi.DeleteVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ControllerPublishVolume(ctx context.Context, req *csi.ControllerPublishVolumeRequest) (*csi.ControllerPublishVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ControllerUnpublishVolume(ctx context.Context, req *csi.ControllerUnpublishVolumeRequest) (*csi.ControllerUnpublishVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ValidateVolumeCapabilities(ctx context.Context, req *csi.ValidateVolumeCapabilitiesRequest) (*csi.ValidateVolumeCapabilitiesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ListVolumes(ctx context.Context, req *csi.ListVolumesRequest) (*csi.ListVolumesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) GetCapacity(ctx context.Context, req *csi.GetCapacityRequest) (*csi.GetCapacityResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+// ControllerGetCapabilities implements the default GRPC callout.
+// Default supports all capabilities
+func (d *driver) ControllerGetCapabilities(ctx context.Context, req *csi.ControllerGetCapabilitiesRequest) (*csi.ControllerGetCapabilitiesResponse, error) {
+	glog.V(5).Infof("Using default ControllerGetCapabilities")
+
+	return &csi.ControllerGetCapabilitiesResponse{
+		Capabilities: d.getControllerServiceCapabilities(),
+	}, nil
+}
+
+func (d *driver) CreateSnapshot(ctx context.Context, req *csi.CreateSnapshotRequest) (*csi.CreateSnapshotResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) DeleteSnapshot(ctx context.Context, req *csi.DeleteSnapshotRequest) (*csi.DeleteSnapshotResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ListSnapshots(ctx context.Context, req *csi.ListSnapshotsRequest) (*csi.ListSnapshotsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ControllerExpandVolume(context.Context, *csi.ControllerExpandVolumeRequest) (*csi.ControllerExpandVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ControllerGetVolume(context.Context, *csi.ControllerGetVolumeRequest) (*csi.ControllerGetVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) ControllerModifyVolume(context.Context, *csi.ControllerModifyVolumeRequest) (*csi.ControllerModifyVolumeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "")
+}
+
+func (d *driver) getControllerServiceCapabilities() []*csi.ControllerServiceCapability {
+	var cl = []csi.ControllerServiceCapability_RPC_Type{
+		// csi.ControllerServiceCapability_RPC_PUBLISH_UNPUBLISH_VOLUME,
+	}
+
+	var csc []*csi.ControllerServiceCapability
+
+	for _, cap := range cl {
+		csc = append(csc, &csi.ControllerServiceCapability{
+			Type: &csi.ControllerServiceCapability_Rpc{
+				Rpc: &csi.ControllerServiceCapability_RPC{
+					Type: cap,
+				},
+			},
+		})
+	}
+
+	return csc
 }

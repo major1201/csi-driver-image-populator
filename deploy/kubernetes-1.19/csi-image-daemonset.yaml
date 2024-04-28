@@ -14,7 +14,7 @@ spec:
       hostNetwork: true
       containers:
         - name: node-driver-registrar
-          image: quay.io/k8scsi/csi-node-driver-registrar:v1.1.0
+          image: k8s.gcr.io/sig-storage/csi-node-driver-registrar:v2.3.0
           imagePullPolicy: IfNotPresent
           lifecycle:
             preStop:
@@ -37,7 +37,7 @@ spec:
             name: registration-dir
 
         - name: image
-          image: quay.io/k8scsi/imagepopulatorplugin:canary
+          image: major1201/imagepopulatorplugin:v1.0.0
           args:
             - "--v=5"
             - "--endpoint=$(CSI_ENDPOINT)"
@@ -87,4 +87,3 @@ spec:
             path: /var/run/containers/storage
             type: DirectoryOrCreate
           name: storagerunroot-dir
-

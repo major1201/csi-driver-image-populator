@@ -18,3 +18,4 @@ spec:
         # because its a good idea. See the container folder for a better
         # example.
         image: busybox
+        # changeDir: /bin
